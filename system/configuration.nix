@@ -1,66 +1,12 @@
-{pkgs, ...}: {
-  imports = [
-    ./hardware-configuration.nix
-  ];
+{...}: {
+  flake.modules.nixos.base = {pkgs, ...}: {
+    nix.settings.experimental-features = ["nix-command" "flakes"];
 
-  nix.settings.experimental-features = [
-    "nix-command"
-    "flakes"
-  ];
+    nixpkgs.config.allowUnfree = true;
 
-  boot.loader.grub.enable = true;
-  boot.loader.grub.device = "/dev/sda";
-  boot.loader.grub.useOSProber = true;
+    users.defaultUserShell = pkgs.zsh;
+    programs.zsh.enable = true;
 
-  networking.hostName = "nixos";
-  networking.wireless.enable = true;
-
-  networking.networkmanager.enable = true;
-
-  time.timeZone = "Europe/Kyiv";
-
-  i18n.defaultLocale = "en_US.UTF-8";
-
-  i18n.extraLocaleSettings = {
-    LC_ADDRESS = "en_US.UTF-8";
-    LC_IDENTIFICATION = "en_US.UTF-8";
-    LC_MEASUREMENT = "en_US.UTF-8";
-    LC_MONETARY = "en_US.UTF-8";
-    LC_NAME = "en_US.UTF-8";
-    LC_NUMERIC = "en_US.UTF-8";
-    LC_PAPER = "en_US.UTF-8";
-    LC_TELEPHONE = "en_US.UTF-8";
-    LC_TIME = "en_US.UTF-8";
+    system.stateVersion = "26.05";
   };
-
-  services.xserver.xkb = {
-    layout = "us";
-    variant = "";
-  };
-
-  users.users."utlight" = {
-    isNormalUser = true;
-    description = "Utlight";
-    extraGroups = ["networkmanager" "wheel"];
-  };
-
-  nixpkgs.config.allowUnfree = true;
-
-  users.defaultUserShell = pkgs.zsh;
-  programs.zsh.enable = true;
-
-  services.openssh = {
-    enable = true;
-    settings = {
-      PasswordAuthentication = false;
-      KbdInteractiveAuthentication = false;
-      PermitRootLogin = "no";
-    };
-  };
-
-  users.users.utlight.openssh.authorizedKeys.keys = [
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIAfEFuYu3lTYh5GNdNoWzgTyaQPYSS5uvRhqeHWudo7 nixos"
-  ];
-
-  system.stateVersion = "26.05";
 }
