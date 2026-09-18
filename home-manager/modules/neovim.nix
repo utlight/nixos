@@ -11,11 +11,14 @@
         tree-sitter
 
         rustc
+        typescript_5
 
         rust-analyzer
         nixd
         lua-language-server
         bash-language-server
+        roslyn-ls
+        typescript-language-server
 
         rustfmt
         alejandra

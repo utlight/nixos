@@ -9,7 +9,9 @@ return {
   config = function()
     local themes = require("telescope.themes")
     require("telescope").setup({
-      defaults = themes.get_ivy(),
+      defaults = themes.get_ivy({
+        path_display = { "truncate" },
+      }),
       extensions = {
         ["ui-select"] = {
           themes.get_cursor(),

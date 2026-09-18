@@ -3,7 +3,7 @@ return {
   event = "VeryLazy",
   config = function()
     require("lualine").setup({
-      options = { globalstatus = true, refresh = { statusline = 100 } },
+      options = { globalstatus = true },
       extensions = { "neo-tree", "quickfix" },
       sections = {
         lualine_a = {
