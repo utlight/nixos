@@ -17,7 +17,13 @@ vim.o.smartcase = true
 vim.o.undofile = true
 
 vim.o.confirm = true
-vim.o.shiftwidth = 4
+
+vim.opt.tabstop = 4
+vim.opt.shiftwidth = 4
+vim.opt.expandtab = true
+vim.opt.smarttab = true
+
+vim.opt.colorcolumn = "120"
 
 vim.o.scrolloff = 10
 
