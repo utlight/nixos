@@ -6,18 +6,14 @@ return {
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       local ok, cmp_lsp = pcall(require, "cmp_nvim_lsp")
 
-      if ok then
-        capabilities = cmp_lsp.default_capabilities(capabilities)
-      end
+      if ok then capabilities = cmp_lsp.default_capabilities(capabilities) end
 
       vim.lsp.config("*", { capabilities = capabilities })
 
       local servers = {}
       local lsp_dir = vim.fn.stdpath("config") .. "/lsp"
       for name, ftype in vim.fs.dir(lsp_dir) do
-        if ftype == "file" and name:match("%.lua$") then
-          table.insert(servers, (name:gsub("%.lua$", "")))
-        end
+        if ftype == "file" and name:match("%.lua$") then table.insert(servers, (name:gsub("%.lua$", ""))) end
       end
       vim.lsp.enable(servers)
 
@@ -59,9 +55,12 @@ return {
           end
 
           if client and client:supports_method("textDocument/inlayHint", args.buf) then
-            vim.keymap.set("n", "<leader>uh", function()
-              vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = args.buf }))
-            end, { desc = "Inlay [H]ints" })
+            vim.keymap.set(
+              "n",
+              "<leader>uh",
+              function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = args.buf })) end,
+              { desc = "Inlay [H]ints" }
+            )
           end
         end,
       })

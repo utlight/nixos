@@ -1,8 +1,9 @@
 {...}: {
-  flake.modules.homeManager.base = {...}: {
+  flake.modules.homeManager.base = {config, ...}: {
     programs.gh.enable = true;
     programs.git = {
       enable = true;
+      settings.credential.helper = "store";
       includes = [
         {
           contents = {
@@ -11,17 +12,15 @@
         }
         {
           condition = "gitdir:~/.config/";
-          contents = {
-            user.name = "utlight";
-            user.email = "250863253+utlight@users.noreply.github.com";
-          };
+          path = "${config.home.homeDirectory}/.gitconfig-personal";
+        }
+        {
+          condition = "gitdir:~/Personal/";
+          path = "${config.home.homeDirectory}/.gitconfig-personal";
         }
         {
           condition = "gitdir:~/Work/";
-          contents = {
-            user.name = "";
-            user.email = "";
-          };
+          path = "${config.home.homeDirectory}/.gitconfig-work";
         }
       ];
     };

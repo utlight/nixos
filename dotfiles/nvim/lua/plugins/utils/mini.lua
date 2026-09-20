@@ -20,8 +20,14 @@ return {
 
       vim.api.nvim_create_autocmd("FileType", {
         pattern = "rust",
-        callback = function(event)
-          vim.keymap.set("i", "'", "'", { buffer = event.buf })
+        callback = function(args) vim.keymap.set("i", "'", "'", { buffer = args.buf }) end,
+      })
+
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "typescriptreact",
+        callback = function(args)
+          vim.keymap.set("i", "<", "<", { buffer = args.buf })
+          vim.keymap.set("i", ">", ">", { buffer = args.buf })
         end,
       })
     end
@@ -32,9 +38,7 @@ return {
 
       vim.keymap.set({ "n", "x", "o" }, "<Esc>", function()
         vim.api.nvim_command("nohlsearch")
-        if not MiniJump.state.jumping then
-          return "<Esc>"
-        end
+        if not MiniJump.state.jumping then return "<Esc>" end
         MiniJump.stop_jumping()
       end, { expr = true, desc = "Stop jumping" })
     end

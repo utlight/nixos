@@ -5,16 +5,12 @@ return {
     build = ":TSUpdate",
     config = function()
       local function treesitter_try_attach(buf, language)
-        if not vim.treesitter.language.add(language) then
-          return
-        end
+        if not vim.treesitter.language.add(language) then return end
         vim.treesitter.start(buf, language)
 
         local has_indent_query = vim.treesitter.query.get(language, "indents") ~= nil
 
-        if has_indent_query then
-          vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
-        end
+        if has_indent_query then vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()" end
       end
 
       local available_parsers = require("nvim-treesitter").get_available()
@@ -24,18 +20,14 @@ return {
           local buf, filetype = args.buf, args.match
 
           local language = vim.treesitter.language.get_lang(filetype)
-          if not language then
-            return
-          end
+          if not language then return end
 
           local installed_parsers = require("nvim-treesitter").get_installed("parsers")
 
           if vim.tbl_contains(installed_parsers, language) then
             treesitter_try_attach(buf, language)
           elseif vim.tbl_contains(available_parsers, language) then
-            require("nvim-treesitter").install(language):await(function()
-              treesitter_try_attach(buf, language)
-            end)
+            require("nvim-treesitter").install(language):await(function() treesitter_try_attach(buf, language) end)
           else
             treesitter_try_attach(buf, language)
           end
@@ -46,9 +38,7 @@ return {
   {
     "nvim-treesitter/nvim-treesitter-textobjects",
     branch = "main",
-    init = function()
-      vim.g.no_plugin_maps = true
-    end,
+    init = function() vim.g.no_plugin_maps = true end,
     opts = {},
   },
   {
@@ -58,9 +48,12 @@ return {
         max_lines = 4,
       })
 
-      vim.keymap.set("n", "grc", function()
-        require("treesitter-context").go_to_context(vim.v.count1)
-      end, { silent = true, desc = "[G]oto [C]ontext" })
+      vim.keymap.set(
+        "n",
+        "grc",
+        function() require("treesitter-context").go_to_context(vim.v.count1) end,
+        { silent = true, desc = "[G]oto [C]ontext" }
+      )
     end,
   },
 }

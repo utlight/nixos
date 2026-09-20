@@ -11,8 +11,6 @@ return {
       },
     })
 
-    vim.keymap.set({ "n", "v" }, "<leader>uf", function()
-      require("conform").format()
-    end, { desc = "[F]ormat buffer" })
+    vim.keymap.set({ "n", "v" }, "<leader>uf", function() require("conform").format() end, { desc = "[F]ormat buffer" })
   end,
 }

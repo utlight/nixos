@@ -43,9 +43,7 @@ return {
       commands = {
         diff_selected_file = function(state)
           local node = state.tree:get_node()
-          if not node then
-            return
-          end
+          if not node then return end
           if node.type ~= "file" then
             state.commands["toggle_node"](state)
             return
@@ -58,22 +56,36 @@ return {
       },
     })
 
-    vim.keymap.set("n", "<leader>n", function()
+    vim.keymap.set(
+      "n",
+      "<leader>n",
+      function()
+        require("neo-tree.command").execute({
+          action = "show",
+          source = get_source(),
+          toggle = true,
+          reveal = true,
+          focus = false,
+          dir = vim.fn.getcwd(),
+        })
+      end,
+      { desc = "Open [N]eoTree" }
+    )
+
+    vim.keymap.set("n", "<leader>N", function()
+      vim.cmd("Neotree close")
       require("neo-tree.command").execute({
         action = "show",
+        position = "current",
         source = get_source(),
-        toggle = true,
         reveal = true,
-        focus = false,
         dir = vim.fn.getcwd(),
       })
-    end, { desc = "Open [N]eoTree" })
+    end, { desc = "Open [N]eotree Current" })
 
     vim.keymap.set("n", "<leader>e", function()
       local state = require("neo-tree.sources.manager").get_state(get_source())
-      if not state then
-        return
-      end
+      if not state then return end
 
       if state.winid and vim.api.nvim_get_current_win() == state.winid then
         vim.cmd("wincmd p")

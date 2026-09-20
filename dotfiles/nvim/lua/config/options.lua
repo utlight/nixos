@@ -1,6 +1,4 @@
-vim.schedule(function()
-  vim.o.clipboard = "unnamedplus"
-end)
+vim.schedule(function() vim.o.clipboard = "unnamedplus" end)
 
 vim.o.number = true
 vim.o.relativenumber = true

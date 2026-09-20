@@ -2,13 +2,9 @@ local function nearest_csproj(start_dir)
   local dir = start_dir
   while dir and dir ~= "/" and dir ~= "" do
     local hit = vim.fn.glob(dir .. "/*.csproj")
-    if hit ~= "" then
-      return dir, hit:match("([^\\/]+)%.csproj$")
-    end
+    if hit ~= "" then return dir, hit:match("([^\\/]+)%.csproj$") end
     local parent = vim.fn.fnamemodify(dir, ":h")
-    if parent == dir then
-      break
-    end
+    if parent == dir then break end
     dir = parent
   end
   return nil, nil
@@ -17,14 +13,10 @@ end
 local function cs_namespace()
   local file_dir = vim.fn.expand("%:p:h")
   local root, proj_name = nearest_csproj(file_dir)
-  if not root then
-    return vim.fn.expand("%:t:r")
-  end
+  if not root then return vim.fn.expand("%:t:r") end
   local rel = file_dir:sub(#root + 2)
   local ns = proj_name
-  if rel ~= "" then
-    ns = ns .. "." .. rel:gsub("[/\\]", ".")
-  end
+  if rel ~= "" then ns = ns .. "." .. rel:gsub("[/\\]", ".") end
   return ns
 end
 
@@ -129,9 +121,7 @@ vim.api.nvim_create_autocmd("BufReadPost", {
 
     local lines = vim.api.nvim_buf_get_lines(args.buf, 0, -1, false)
 
-    if #lines > 1 or lines[1] ~= "" then
-      return
-    end
+    if #lines > 1 or lines[1] ~= "" then return end
 
     local template = cs_template(fileName)
 

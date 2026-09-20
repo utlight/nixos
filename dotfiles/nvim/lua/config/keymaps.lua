@@ -10,3 +10,5 @@ vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<cr>")
 
 vim.keymap.set("n", "<Tab>", "]b")
 vim.keymap.set("n", "<S-Tab>", "[b")
+
+vim.keymap.set({ "n", "o" }, "U", [[/\%.l\u<cr>]], { silent = true })
