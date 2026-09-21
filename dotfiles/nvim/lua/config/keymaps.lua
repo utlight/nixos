@@ -8,7 +8,7 @@ vim.keymap.set("n", "<C-d>", "<C-d>zz")
 
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<cr>")
 
-vim.keymap.set("n", "<Tab>", "]b")
-vim.keymap.set("n", "<S-Tab>", "[b")
-
-vim.keymap.set({ "n", "o" }, "U", [[/\%.l\u<cr>]], { silent = true })
+vim.keymap.set({ "n", "o" }, "U", function()
+  vim.fn.setreg("/", [[\%.l\u]])
+  vim.o.hlsearch = true
+end, { silent = true })

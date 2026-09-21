@@ -21,13 +21,13 @@
       indent_style = space
     '';
 
-    programs.fd.enable = true;
     programs.fastfetch.enable = true;
     programs.gcc.enable = true;
     programs.cargo.enable = true;
     programs.npm.enable = true;
     programs.lazygit.enable = true;
     programs.ripgrep.enable = true;
+    programs.fd.enable = true;
     programs.fzf = {
       enable = true;
       enableZshIntegration = true;

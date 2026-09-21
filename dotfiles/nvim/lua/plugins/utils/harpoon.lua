@@ -6,16 +6,17 @@ return {
     local harpoon = require("harpoon")
     harpoon:setup()
 
-    vim.keymap.set("n", "<leader>hh", function() harpoon:list():add() end, { desc = "[H]arpoon Add" })
-    vim.keymap.set("n", "<leader>hD", function() harpoon:list():clear() end, { desc = "[H]arpoon Clear" })
+    vim.keymap.set("n", "<leader>hX", function() harpoon:list():clear() end, { desc = "[H]arpoon Clear" })
+
+    vim.keymap.set("n", "<leader>hA", function() harpoon:list():replace_at(1) end, { desc = "[H]arpoon Set 1" })
+    vim.keymap.set("n", "<leader>hS", function() harpoon:list():replace_at(2) end, { desc = "[H]arpoon Set 2" })
+    vim.keymap.set("n", "<leader>hD", function() harpoon:list():replace_at(3) end, { desc = "[H]arpoon Set 3" })
+    vim.keymap.set("n", "<leader>hF", function() harpoon:list():replace_at(4) end, { desc = "[H]arpoon Set 4" })
 
     vim.keymap.set("n", "<leader>ha", function() harpoon:list():select(1) end, { desc = "[H]arpoon 1" })
     vim.keymap.set("n", "<leader>hs", function() harpoon:list():select(2) end, { desc = "[H]arpoon 2" })
     vim.keymap.set("n", "<leader>hd", function() harpoon:list():select(3) end, { desc = "[H]arpoon 3" })
     vim.keymap.set("n", "<leader>hf", function() harpoon:list():select(4) end, { desc = "[H]arpoon 4" })
-
-    vim.keymap.set("n", "<leader>hn", function() harpoon:list():next() end, { desc = "[H]arpoon [N]ext" })
-    vim.keymap.set("n", "<leader>hp", function() harpoon:list():prev() end, { desc = "[H]arpoon [P]rev" })
 
     local conf = require("telescope.config").values
     local function toggle_telescope(harpoon_files)
