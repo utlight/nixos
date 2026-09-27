@@ -1,9 +1,16 @@
 {...}: {
-  flake.modules.homeManager.base = {config, ...}: {
+  flake.modules.homeManager.base = {
+    config,
+    pkgs,
+    ...
+  }: {
+    home.packages = [pkgs.libsecret];
+
     programs.gh.enable = true;
     programs.git = {
       enable = true;
-      settings.credential.helper = "store";
+      package = pkgs.git.override {withLibsecret = true;};
+      settings.credential.helper = "${pkgs.git.override {withLibsecret = true;}}/share/git/contrib/credential/libsecret/git-credential-libsecret";
       includes = [
         {
           contents = {
@@ -11,7 +18,7 @@
           };
         }
         {
-          condition = "gitdir:~/.config/";
+          condition = "gitdir:~/nixos/";
           path = "${config.home.homeDirectory}/.gitconfig-personal";
         }
         {

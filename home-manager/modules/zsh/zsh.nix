@@ -3,7 +3,7 @@
     programs.zsh = {
       enable = true;
       enableCompletion = true;
-      # syntaxHighlighting.enable = true;
+      syntaxHighlighting.enable = true;
       shellAliases.yazi = "y";
       plugins = [
         {
@@ -15,7 +15,7 @@
       oh-my-zsh = {
         enable = true;
         theme = "robbyrussell";
-        plugins = ["sudo"];
+        plugins = ["sudo" "dotnet" "vi-mode"];
       };
       sessionVariables = {
         EDITOR = "nvim";
@@ -23,6 +23,7 @@
       };
       initContent = ''
         source ${./tm.zsh}
+        source ${./softether.zsh}
       '';
     };
   };

@@ -9,10 +9,10 @@ return {
       },
       options = {
         nixos = {
-          expr = '(builtins.getFlake "/home/utlight/.config/nixos").nixosConfigurations.nixos.options',
+          expr = '(builtins.getFlake "/home/utlight/nixos").nixosConfigurations.nixos.options',
         },
         home_manager = {
-          expr = '(builtins.getFlake "/home/utlight/.config/nixos").nixosConfigurations.nixos.options.home-manager.users.type.getSubOptions []',
+          expr = '(builtins.getFlake "/home/utlight/nixos").nixosConfigurations.nixos.options.home-manager.users.type.getSubOptions []',
         },
       },
     },

@@ -1,5 +1,9 @@
 {
-  flake.modules.homeManager.base = {pkgs, ...}: {
+  flake.modules.homeManager.base = {
+    pkgs,
+    config,
+    ...
+  }: {
     home = {
       username = "utlight";
       homeDirectory = "/home/utlight";
@@ -8,8 +12,23 @@
         (azure-cli.withExtensions [azure-cli-extensions.azure-devops])
         (with dotnetCorePackages; combinePackages [sdk_8_0 sdk_9_0 sdk_10_0])
         nerd-fonts.jetbrains-mono
-        cmake
+        playerctl
+        gnumake
+        teams-for-linux
+        bitwarden-cli
+        pciutils
+        jetbrains.datagrip
       ];
+    };
+
+    xdg.configFile."niri" = {
+      source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/nixos/dotfiles/niri";
+      recursive = true;
+    };
+
+    xdg.configFile."noctalia" = {
+      source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/nixos/dotfiles/noctalia";
+      recursive = true;
     };
 
     home.file.".editorconfig".text = ''
@@ -21,6 +40,7 @@
       indent_style = space
     '';
 
+    programs.nix-search-tv.enable = true;
     programs.fastfetch.enable = true;
     programs.gcc.enable = true;
     programs.cargo.enable = true;
@@ -28,9 +48,34 @@
     programs.lazygit.enable = true;
     programs.ripgrep.enable = true;
     programs.fd.enable = true;
+
     programs.fzf = {
       enable = true;
       enableZshIntegration = true;
+    };
+
+    programs.discord = {
+      enable = true;
+      settings.SKIP_HOST_UPDATE = true;
+    };
+
+    programs.mangohud = {
+      enable = true;
+      enableSessionWide = true;
+      settings = {
+        no_display = true;
+        gpu_name = true;
+      };
+    };
+
+    programs.nh = {
+      enable = true;
+      flake = "${config.home.homeDirectory}/nixos";
+      clean = {
+        enable = true;
+        dates = "weekly";
+        extraArgs = "--keep-since 7d --keep 5";
+      };
     };
   };
 }
