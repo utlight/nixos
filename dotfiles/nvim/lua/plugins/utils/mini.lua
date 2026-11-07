@@ -11,24 +11,11 @@ return {
       },
     })
     do
-      require("mini.pairs").setup({
-        mappings = {
-          ["<"] = { action = "open", pair = "<>", neigh_pattern = "[^\\]" },
-          [">"] = { action = "close", pair = "<>", neigh_pattern = "[^\\]" },
-        },
-      })
+      require("mini.pairs").setup()
 
       vim.api.nvim_create_autocmd("FileType", {
         pattern = "rust",
         callback = function(args) vim.keymap.set("i", "'", "'", { buffer = args.buf }) end,
-      })
-
-      vim.api.nvim_create_autocmd("FileType", {
-        pattern = "typescriptreact",
-        callback = function(args)
-          vim.keymap.set("i", "<", "<", { buffer = args.buf })
-          vim.keymap.set("i", ">", ">", { buffer = args.buf })
-        end,
       })
     end
 

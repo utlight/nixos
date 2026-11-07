@@ -2,7 +2,7 @@ input {
     keyboard {
         xkb {
             layout "us,ua"
-            options "grp:alt_shift_toggle,compose:ralt,ctrl:nocaps"        
+            options "grp:win_space_toggle"        
         }
     }
 

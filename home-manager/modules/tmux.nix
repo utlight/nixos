@@ -6,6 +6,8 @@
       extraConfig = ''
         set -g base-index 1
         set -g mouse on
+        set -g allow-passthrough on
+        set -g focus-events on
 
         bind-key -n M-1 select-window -t 1
         bind-key -n M-2 select-window -t 2

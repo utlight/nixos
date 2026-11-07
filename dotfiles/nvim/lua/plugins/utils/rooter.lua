@@ -3,7 +3,7 @@ return {
   lazy = false,
   config = function()
     require("rooter").setup({
-      root_patterns = { ".git/", "cargo.toml", ".sln", ".gitconfig" },
+      root_patterns = { ".git/", "cargo.toml", ".nuget/", ".gitconfig" },
       outermost = false,
       command = "tcd",
       trigger_dir_changed = true,

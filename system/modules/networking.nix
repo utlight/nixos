@@ -15,6 +15,19 @@
       matchConfig.Name = "vpn_vpn";
       networkConfig.DHCP = "ipv4";
       routes = [
+        #NOTE: DB Connection
+        {
+          Destination = "20.166.45.62/32";
+          Gateway = "192.168.30.1";
+        }
+        {
+          Destination = "52.146.133.0/24";
+          Gateway = "192.168.30.1";
+        }
+        {
+          Destination = "52.146.133.130/32";
+          Gateway = "192.168.30.1";
+        }
         {
           Destination = "20.107.224.22/32";
           Gateway = "192.168.30.1";

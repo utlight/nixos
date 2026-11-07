@@ -9,15 +9,13 @@
       homeDirectory = "/home/utlight";
       stateVersion = "26.05";
       packages = with pkgs; [
-        (azure-cli.withExtensions [azure-cli-extensions.azure-devops])
-        (with dotnetCorePackages; combinePackages [sdk_8_0 sdk_9_0 sdk_10_0])
         nerd-fonts.jetbrains-mono
         playerctl
-        gnumake
         teams-for-linux
+        telegram-desktop
         bitwarden-cli
         pciutils
-        jetbrains.datagrip
+        protonup-qt
       ];
     };
 
@@ -31,23 +29,12 @@
       recursive = true;
     };
 
-    home.file.".editorconfig".text = ''
-      root = true
-
-      [*.cs]
-      csharp_style_namespace_declarations = file_scoped:warning
-      max_line_length = 120
-      indent_style = space
-    '';
-
     programs.nix-search-tv.enable = true;
     programs.fastfetch.enable = true;
-    programs.gcc.enable = true;
-    programs.cargo.enable = true;
-    programs.npm.enable = true;
     programs.lazygit.enable = true;
     programs.ripgrep.enable = true;
     programs.fd.enable = true;
+    programs.lutris.enable = true;
 
     programs.fzf = {
       enable = true;
@@ -63,6 +50,7 @@
       enable = true;
       enableSessionWide = true;
       settings = {
+        toggle_hud = "Shift_L+F12";
         no_display = true;
         gpu_name = true;
       };

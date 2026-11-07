@@ -19,11 +19,15 @@
         bash-language-server
         roslyn-ls
         typescript-language-server
+        basedpyright
 
         rustfmt
         alejandra
         stylua
         shfmt
+        prettier
+        ruff
+        jq
       ];
     };
 

@@ -8,7 +8,7 @@ return {
     vim.keymap.set("n", "<leader>gs", gitsigns.stage_hunk, { desc = "[S]tage Hunk" })
     vim.keymap.set("n", "<leader>gS", gitsigns.stage_buffer, { desc = "[S]tage Buffer" })
     vim.keymap.set("n", "<leader>gr", gitsigns.reset_hunk, { desc = "[R]eset Hunk" })
-    vim.keymap.set("n", "<leader>gb", gitsigns.blame_line, { desc = "[B]lame Line" })
+    vim.keymap.set("n", "<leader>gb", gitsigns.blame, { desc = "[B]lame" })
 
     vim.keymap.set({ "o", "x" }, "ih", gitsigns.select_hunk, { desc = "[H]unk" })
 

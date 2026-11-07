@@ -13,6 +13,7 @@ require("lazy").setup({
     { import = "plugins.ui" },
     { import = "plugins.utils" },
     { import = "plugins.git" },
+    { import = "plugins.sql" },
   },
   colorscheme = "catppuccin-mocha",
   checker = { notify = false },

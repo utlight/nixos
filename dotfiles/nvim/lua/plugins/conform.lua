@@ -8,6 +8,10 @@ return {
         rust = { "rustfmt" },
         nix = { "alejandra" },
         zsh = { "shfmt" },
+        typescript = { "prettier" },
+        typescriptreact = { "prettier" },
+        python = { "ruff_format" },
+        json = { "jq" },
       },
     })
 

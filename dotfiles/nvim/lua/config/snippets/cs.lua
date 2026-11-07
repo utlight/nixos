@@ -99,6 +99,19 @@ local function cs_template(file_name)
     }
   end
 
+  if file_name:match("Enum$") then
+    return {
+      lines = {
+        "namespace " .. cs_namespace() .. ";",
+        "",
+        "public enum " .. file_name,
+        "{",
+        "    ",
+        "}",
+      },
+    }
+  end
+
   local kind = file_name:match("^I[A-Z]") and "interface" or "class"
 
   return {
@@ -129,5 +142,6 @@ vim.api.nvim_create_autocmd("BufReadPost", {
     vim.api.nvim_win_set_cursor(0, template.cursor)
     vim.cmd("retab")
     vim.cmd("startinsert")
+    vim.cmd("stopinsert")
   end,
 })

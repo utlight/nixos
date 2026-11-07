@@ -20,39 +20,25 @@ return {
     "nvim-lua/plenary.nvim",
     "MunifTanjim/nui.nvim",
     "nvim-tree/nvim-web-devicons",
+    "alessandropietrobelli/dotnet-tree.nvim",
   },
   lazy = false,
   config = function()
     require("neo-tree").setup({
       close_if_last_window = true,
-      sources = { "filesystem", "git_status" },
+      sources = { "filesystem", "dotnet-tree" },
       filesystem = {
         bind_to_cwd = true,
         follow_current_file = { enabled = true, leave_dirs_open = true },
         use_libuv_file_watcher = true,
         filtered_items = { visible = true },
       },
-      git_status = {
-        window = {
-          mappings = {
-            ["<cr>"] = "diff_selected_file",
-            ["e"] = "open",
+      default_component_configs = {
+        git_status = {
+          symbols = {
+            added = "",
           },
         },
-      },
-      commands = {
-        diff_selected_file = function(state)
-          local node = state.tree:get_node()
-          if not node then return end
-          if node.type ~= "file" then
-            state.commands["toggle_node"](state)
-            return
-          end
-
-          local path = node.path or node:get_id()
-
-          require("diffview").open({ "--", path })
-        end,
       },
     })
 

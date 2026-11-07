@@ -24,6 +24,7 @@
       initContent = ''
         source ${./tm.zsh}
         source ${./softether.zsh}
+        source ${./history-separation.zsh}
       '';
     };
   };
