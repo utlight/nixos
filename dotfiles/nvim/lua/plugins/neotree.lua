@@ -1,17 +1,26 @@
+local function is_dotnet_project(dir)
+  local ok, iter = pcall(vim.fs.dir, dir)
+  if not ok then return false end
+  for name, type in iter do
+    if type == "file" then
+      for _, pattern in ipairs({ "%.slnx$", "%.sln$", "%.csproj$" }) do
+        if name:match(pattern) then return true end
+      end
+    end
+  end
+  return false
+end
+
 local function get_source()
-  local source_name = nil
   for _, win in ipairs(vim.api.nvim_list_wins()) do
     local buf = vim.api.nvim_win_get_buf(win)
     if vim.bo[buf].filetype == "neo-tree" then
       local ok, src = pcall(vim.api.nvim_buf_get_var, buf, "neo_tree_source")
-      if ok then
-        source_name = src
-        break
-      end
+      if ok then return src end
     end
   end
 
-  return source_name or "filesystem"
+  return is_dotnet_project(vim.fn.getcwd()) and "dotnet-tree" or "filesystem"
 end
 
 return {
@@ -87,6 +96,7 @@ return {
       callback = function()
         require("neo-tree.command").execute({
           action = "show",
+          source = get_source(),
           reveal = true,
           focus = false,
           dir = vim.fn.getcwd(),
