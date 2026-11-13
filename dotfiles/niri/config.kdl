@@ -114,6 +114,11 @@ window-rule {
     }
 }
 
+window-rule {
+    match app-id="jetbrains"
+    open-floating false
+}
+
 recent-windows {
     binds {
         Alt+Tab         { next-window; }

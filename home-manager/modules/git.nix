@@ -22,11 +22,11 @@
           path = "${config.home.homeDirectory}/.gitconfig-personal";
         }
         {
-          condition = "gitdir:~/Personal/";
+          condition = "gitdir:~/personal/";
           path = "${config.home.homeDirectory}/.gitconfig-personal";
         }
         {
-          condition = "gitdir:~/Work/";
+          condition = "gitdir:~/work/";
           path = "${config.home.homeDirectory}/.gitconfig-work";
         }
       ];

@@ -28,7 +28,6 @@ return {
 
           vim.keymap.set("n", "gra", vim.lsp.buf.code_action, { buffer = buf, desc = "[G]oto Code [A]ction" })
           vim.keymap.set("n", "grn", vim.lsp.buf.rename, { buffer = buf, desc = "[R]e[n]ame" })
-          vim.keymap.set("n", "gra", vim.lsp.buf.code_action, { buffer = buf, desc = "[G]oto Code [A]ction" })
 
           local client = vim.lsp.get_client_by_id(args.data.client_id)
           if client and client:supports_method("textDocument/inlayHint", args.buf) then

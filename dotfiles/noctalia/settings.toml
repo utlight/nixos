@@ -12,7 +12,18 @@ scale = 1.1
 margin_edge = 8
 margin_ends = 16
 start = ["launcher", "workspaces"]
-end = ["tray", "keyboard_layout", "clipboard", "notifications", "network", "bluetooth", "volume", "battery", "session"]
+center = ["updates", "clock"]
+end = [
+    "tray",
+    "keyboard_layout",
+    "clipboard",
+    "notifications",
+    "network",
+    "bluetooth",
+    "volume",
+    "battery",
+    "session",
+]
 widget_spacing = 10
 
 #NOTE:--------------------------------------------------WIDGETS--------------------------------------------------------
@@ -26,6 +37,12 @@ show_glyph = false
 
 [widget.network]
 show_label = false
+
+[widget.updates]
+glyph = "snowflake"
+highlight_color = "primary"
+show_count = false
+type = "dmopp/nixos-updates:updates"
 
 #NOTE:-----------------------------------------------CONTROL CENTER----------------------------------------------------
 
@@ -87,10 +104,22 @@ enabled = [
     "noctalia/bitwarden",
     "knyrps/nix-search",
     "noctalia/screen_recorder",
+    "dunarand/tmux-provider",
+    "dmopp/nixos-updates",
 ]
 
 [plugin_settings."noctalia/screen_recorder"]
 video_source = "focused"
+
+[plugin_settings."dmopp/nixos-updates"]
+check_flatpak = false
+check_interval_hours = 24
+details_placement = "attached"
+flake_dir = "/home/utlight/nixos"
+update_command = "nh os build --update"
+
+[plugin_settings."dunarand/tmux-provider"]
+use_tmuxp = true
 
 #NOTE:---------------------------------------------------SHELL---------------------------------------------------------
 

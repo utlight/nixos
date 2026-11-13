@@ -2,6 +2,7 @@
   flake.modules.homeManager.base = {pkgs, ...}: {
     programs.tmux = {
       enable = true;
+      tmuxp.enable = true;
       shell = "${pkgs.zsh}/bin/zsh";
       extraConfig = ''
         set -g base-index 1

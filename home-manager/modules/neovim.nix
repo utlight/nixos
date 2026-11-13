@@ -21,6 +21,7 @@
         typescript-language-server
         basedpyright
         sqls
+        taplo
 
         rustfmt
         alejandra
@@ -30,7 +31,6 @@
         ruff
         jq
         sqruff
-        taplo
       ];
     };
 
