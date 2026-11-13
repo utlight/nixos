@@ -12,6 +12,7 @@ return {
         typescriptreact = { "prettier" },
         python = { "ruff_format" },
         json = { "jq" },
+        sql = { "sqruff" },
       },
     })
 

@@ -4,7 +4,6 @@
       enable = true;
       enableCompletion = true;
       syntaxHighlighting.enable = true;
-      shellAliases.yazi = "y";
       plugins = [
         {
           name = "fzf-tab";

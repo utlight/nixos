@@ -20,6 +20,7 @@
         roslyn-ls
         typescript-language-server
         basedpyright
+        sqls
 
         rustfmt
         alejandra
@@ -28,6 +29,8 @@
         prettier
         ruff
         jq
+        sqruff
+        taplo
       ];
     };
 

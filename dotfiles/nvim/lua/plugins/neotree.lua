@@ -33,9 +33,28 @@ return {
   },
   lazy = false,
   config = function()
+    local dotnet_tree_commands = require("dotnet-tree.commands")
+    local neo_tree_commands = require("neo-tree.sources.common.commands")
+
     require("neo-tree").setup({
       close_if_last_window = true,
+      use_popups_for_input = false,
       sources = { "filesystem", "dotnet-tree" },
+      ["dotnet-tree"] = {
+        follow_current_file = { enabled = true },
+        window = {
+          mappings = {
+            ["a"] = neo_tree_commands.add,
+            ["A"] = dotnet_tree_commands.add,
+            ["d"] = neo_tree_commands.delete,
+            ["D"] = dotnet_tree_commands.debug,
+            ["r"] = neo_tree_commands.rename,
+            ["b"] = "noop",
+            ["B"] = "noop",
+            ["t"] = "noop",
+          },
+        },
+      },
       filesystem = {
         bind_to_cwd = true,
         follow_current_file = { enabled = true, leave_dirs_open = true },
@@ -47,6 +66,13 @@ return {
           symbols = {
             added = "",
           },
+        },
+      },
+      window = {
+        mappings = {
+          ["l"] = "open",
+          ["h"] = "close_node",
+          ["<space>"] = "noop",
         },
       },
     })
@@ -91,17 +117,5 @@ return {
         })
       end
     end, { desc = "Focus [N]eoTree" })
-
-    vim.api.nvim_create_autocmd("VimEnter", {
-      callback = function()
-        require("neo-tree.command").execute({
-          action = "show",
-          source = get_source(),
-          reveal = true,
-          focus = false,
-          dir = vim.fn.getcwd(),
-        })
-      end,
-    })
   end,
 }

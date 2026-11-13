@@ -3,6 +3,7 @@
     environment.systemPackages = with pkgs; [
       xwayland-satellite
       afterglow-cursors-recolored
+      wl-clipboard
     ];
 
     services.gnome.gnome-keyring.enable = true;
@@ -12,7 +13,11 @@
       extraPortals = with pkgs; [
         xdg-desktop-portal-gnome
         xdg-desktop-portal-gtk
+        xdg-desktop-portal-termfilechooser
       ];
+      config.niri = {
+        "org.freedesktop.impl.portal.FileChooser" = ["termfilechooser"];
+      };
     };
 
     services.udev.extraRules = ''
@@ -37,7 +42,7 @@
             path = "${../../dotfiles/noctalia/3vydZuxp-fond-decran-Printemps-49.png}";
             fill_mode = "fit";
           };
-          scheme = "Rose-pine";
+          scheme = "Rosé Pine";
           hide_logo = true;
         };
       };

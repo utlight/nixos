@@ -7,6 +7,7 @@
     home = {
       username = "utlight";
       homeDirectory = "/home/utlight";
+      backupFileExtension = "backup";
       stateVersion = "26.05";
       packages = with pkgs; [
         nerd-fonts.jetbrains-mono

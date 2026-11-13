@@ -8,6 +8,8 @@
       mono
       azurite
       jetbrains.datagrip
+      jetbrains.rider
+      jetbrains.webstorm
     ];
 
     programs.gcc.enable = true;
@@ -21,6 +23,22 @@
       csharp_style_namespace_declarations = file_scoped:warning
       max_line_length = 120
       indent_style = space
+    '';
+
+    home.file.".sqruff".text = ''
+      [sqruff]
+      dialect = tsql
+      output_line_length = 100
+      max_line_length = 100
+
+      [sqruff:indentation]
+      indented_joins = true
+
+      [sqruff:rules]
+      unquoted_identifiers_policy = aliases
+
+      [sqruff:rules:capitalisation.identifiers]
+      extended_capitalisation_policy = lowercase
     '';
   };
 }

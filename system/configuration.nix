@@ -9,6 +9,8 @@
 
     services.flatpak.enable = true;
 
+    programs.gpu-screen-recorder.enable = true;
+
     programs.steam.enable = true;
     programs.gamemode.enable = true;
 

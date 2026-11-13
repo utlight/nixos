@@ -56,6 +56,17 @@ layout {
         active-color "#7fc8ff"
         inactive-color "#505050"
     }
+
+    background-color "transparent"
+}
+
+layer-rule {
+    match namespace="^noctalia-wallpaper$"
+    place-within-backdrop true
+}
+
+overview {
+    zoom 0.7
 }
 
 hotkey-overlay {
@@ -63,8 +74,6 @@ hotkey-overlay {
 }
 
 prefer-no-csd
-
-screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
 window-rule {
     match is-floating=true
@@ -82,11 +91,27 @@ window-rule {
 }
 
 window-rule {
+    match app-id="steam"
+    draw-border-with-background false
+    focus-ring {
+        off 
+    }
+}
+
+window-rule {
     match app-id="steam" title="Friends List"
     match app-id="steam" title="Recordings & Screenshots"
     open-floating true
     default-column-width { proportion 0.4; }
     default-window-height { proportion 0.6; }
+}
+
+window-rule {
+    match app-id="steam" title=r#"^notificationtoasts_\d+_desktop$"#
+    default-floating-position x=10 y=10 relative-to="top-right"
+    focus-ring {
+        off
+    }
 }
 
 recent-windows {
@@ -99,8 +124,15 @@ recent-windows {
 binds {
     Mod+Shift+Slash { show-hotkey-overlay; }
 
-    Mod+T hotkey-overlay-title="Open Ghostty" { spawn "ghostty" "--working-directory=\"$HOME\""; }
+    Mod+T hotkey-overlay-title="Open Terminal" { spawn "ghostty" "--working-directory=\"$HOME\""; }
+    Mod+Y hotkey-overlay-title="Open Yazi" { spawn-sh "ghostty -e yazi"; }
+    Mod+B hotkey-overlay-title="Open Sqmeow" { spawn-sh "ghostty -e nvim -c \"Sqmeow\""; }
     Mod+D hotkey-overlay-title="Open Noctalia Launcher" { spawn-sh "noctalia msg panel-toggle launcher"; }
+    Mod+C hotkey-overlay-title="Open Clipboard" { spawn-sh "noctalia msg panel-toggle clipboard"; }
+
+    Print { spawn-sh "noctalia msg screenshot-region"; }
+    Shift+Print { spawn-sh "noctalia msg screenshot-fullscreen"; }
+    Mod+Print { spawn "toggle-recording"; }
 
     XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05+ -l 1.0"; }
     XF86AudioLowerVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05-"; }
@@ -191,8 +223,6 @@ binds {
     // Makes the column "fill the rest of the space".
     Mod+Ctrl+F { expand-column-to-available-width; }
 
-    Mod+C { center-column; }
-
     // Center all fully visible columns on screen.
     Mod+Ctrl+C { center-visible-columns; }
 
@@ -212,9 +242,6 @@ binds {
     // rather than stacked on top of each other.
     Mod+W { toggle-column-tabbed-display; }
 
-    Print { screenshot; }
-    Ctrl+Print { screenshot-screen; }
-    Alt+Print { screenshot-window; }
 
     // Applications such as remote-desktop clients and software KVM switches may
     // request that niri stops processing the keyboard shortcuts defined here
@@ -234,6 +261,7 @@ binds {
     // moving the mouse or pressing any other key.
     Mod+Shift+P { power-off-monitors; }
 }
+
 
 
 

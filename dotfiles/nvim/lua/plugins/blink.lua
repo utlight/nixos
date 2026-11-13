@@ -20,6 +20,17 @@ return {
     },
   },
   opts = {
+    sources = {
+      per_filetype = {
+        sql = { "lsp", "sqmeow" },
+      },
+      providers = {
+        sqmeow = {
+          name = "Sqmeow",
+          module = "sqmeow.completion.blink",
+        },
+      },
+    },
     signature = {
       enabled = true,
       window = { show_documentation = false, direction_priority = { "n" } },

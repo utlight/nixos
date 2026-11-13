@@ -1,162 +1,143 @@
-config_version = 14
+config_version = 16
+
+#NOTE:----------------------------------------------------BAR----------------------------------------------------------
 
 [bar.default]
-background_opacity = 0.69999998435378075
+border_width = 0.0
+font_weight = 600
+background_opacity = 0.7
 border = "primary"
-border_width = 2.0
-concave_edge_corners = false
-end = [ "tray", "notifications", "clipboard", "network", "bluetooth", "volume", "battery", "session" ]
-font_scale = 1.1499999817460775
+font_family = "JetBrainsMono Nerd Font"
+scale = 1.1
 margin_edge = 8
 margin_ends = 16
-start = [ "workspaces" ]
+start = ["launcher", "workspaces"]
+end = ["tray", "keyboard_layout", "clipboard", "notifications", "network", "bluetooth", "volume", "battery", "session"]
 widget_spacing = 10
 
-[control_center]
-hidden_tabs = [ "monitor" ]
-
-    [[control_center.shortcuts]]
-    type = "wifi"
-
-    [[control_center.shortcuts]]
-    type = "caffeine"
-
-    [[control_center.shortcuts]]
-    type = "notification"
-
-    [[control_center.shortcuts]]
-    type = "power_profile"
-
-    [[control_center.shortcuts]]
-    type = "lux/ideapad-conservation-mode:conservation-mode"
-
-[desktop_widgets]
-schema_version = 2
-widget_order = []
-
-    [desktop_widgets.grid]
-    cell_size = 16
-    major_interval = 4
-    visible = true
-
-    [desktop_widgets.widget]
-
-[lockscreen_widgets]
-enabled = false
-schema_version = 2
-widget_order = [ "lockscreen-login-box@HDMI-A-1", "lockscreen-login-box@eDP-2" ]
-
-    [lockscreen_widgets.grid]
-    cell_size = 16
-    major_interval = 4
-    visible = true
-
-    [lockscreen_widgets.widget."lockscreen-login-box@HDMI-A-1"]
-    box_height = 196.0
-    box_width = 810.0
-    cx = 960.0
-    cy = 898.0
-    output = "HDMI-A-1"
-    placement_height = 1080.0
-    placement_width = 1920.0
-    rotation = 0.0
-    type = "login_box"
-
-        [lockscreen_widgets.widget."lockscreen-login-box@HDMI-A-1".settings]
-        background_color = "surface_variant"
-        background_opacity = 0.88
-        background_radius = 12.0
-        center_password_text = false
-        input_opacity = 1.0
-        input_radius = 6.0
-        layout = "regular"
-        show_caps_lock = true
-        show_keyboard_layout = true
-        show_login_button = true
-        show_media = true
-        show_session_buttons = true
-        show_unlock_hint = true
-        show_weather = true
-
-    [lockscreen_widgets.widget."lockscreen-login-box@eDP-2"]
-    box_height = 196.0
-    box_width = 810.0
-    cx = 873.0111083984375
-    cy = 904.90631103515625
-    output = "eDP-2"
-    placement_height = 1091.0
-    placement_width = 1745.0
-    rotation = 0.0
-    type = "login_box"
-
-        [lockscreen_widgets.widget."lockscreen-login-box@eDP-2".settings]
-        background_color = "surface_variant"
-        background_opacity = 0.88
-        background_radius = 12.0
-        center_password_text = false
-        input_opacity = 1.0
-        input_radius = 6.0
-        layout = "regular"
-        show_caps_lock = true
-        show_keyboard_layout = true
-        show_login_button = true
-        show_media = true
-        show_session_buttons = true
-        show_unlock_hint = true
-        show_weather = true
-
-
-[theme]
-builtin = "Rosé Pine"
-community_palette = "Oxocarbon"
-mode = "dark"
-source = "builtin"
-wallpaper_scheme = "m3-content"
-
-    [theme.templates]
-    builtin_ids = [ "ghostty", "niri" ]
+#NOTE:--------------------------------------------------WIDGETS--------------------------------------------------------
 
 [widget.clock]
 format = "{:%A, %d %B, %H:%M}"
 
-[widget.control-center]
-enabled = false
+[widget.keyboard_layout]
+hide_when_single_layout = true
+show_glyph = false
 
 [widget.network]
 show_label = false
 
-[keybinds]
-up = ["up", "ctrl+p"]
-down = ["down", "ctrl+n"]
+#NOTE:-----------------------------------------------CONTROL CENTER----------------------------------------------------
 
-[wallpaper.default]
-path = "~/nixos/dotfiles/noctalia/3vydZuxp-fond-decran-Printemps-49.png"
+[control_center]
+hidden_tabs = ["monitor"]
+
+[[control_center.shortcuts]]
+type = "wifi"
+
+[[control_center.shortcuts]]
+type = "caffeine"
+
+[[control_center.shortcuts]]
+type = "notification"
+
+[[control_center.shortcuts]]
+type = "power_profile"
+
+[[control_center.shortcuts]]
+type = "lux/ideapad-conservation-mode:conservation-mode"
 
 [calendar]
 enabled = true
 event_date_format = "%e %B"
 
-    [calendar.account.personal_icloud]
-    provider = "icloud"
-    type = "caldav"
-    username = "oleksandralekseiev@icloud.com"
+[calendar.account.personal_icloud]
+provider = "icloud"
+type = "caldav"
+username = "oleksandralekseiev@icloud.com"
 
-[plugins]
-enabled = [ "lux/ideapad-conservation-mode", "noctalia/bitwarden", "dotnetrob/cat", "knyrps/nix-search" ]
+#NOTE:---------------------------------------------------THEME---------------------------------------------------------
 
-[shell]
-clipboard_enabled = false
-date_format = "%A, %d %B"
+[theme]
+builtin = "Rosé Pine"
+mode = "dark"
+source = "builtin"
+wallpaper_scheme = "m3-content"
+
+[theme.templates]
+builtin_ids = ["ghostty", "niri"]
+
+[wallpaper.default]
+path = "~/nixos/dotfiles/noctalia/3vydZuxp-fond-decran-Printemps-49.png"
+
+[notification]
+follow_focused_output = true
+layer = "overlay"
+
+[shell.screen_corners]
+enabled = true
 
 font_family = "JetBrainsMono Nerd Font"
 
-    [shell.launcher]
-    categories = false
+#NOTE:--------------------------------------------------PLUGINS--------------------------------------------------------
 
-    [shell.screenshot]
-    annotate = true
+[plugins]
+enabled = [
+    "lux/ideapad-conservation-mode",
+    "noctalia/bitwarden",
+    "knyrps/nix-search",
+    "noctalia/screen_recorder",
+]
 
-[widget.cat]
-cat_color = "primary"
-cat_color_mode = "custom"
-type = "dotnetrob/cat:cat"
+[plugin_settings."noctalia/screen_recorder"]
+video_source = "focused"
+
+#NOTE:---------------------------------------------------SHELL---------------------------------------------------------
+
+[shell]
+date_format = "%A, %d %B"
+niri_overview_type_to_launch_enabled = true
+screen_time_enabled = true
+
+[shell.screenshot]
+confirm_region = true
+annotate = true
+skip_annotate_on_copy_save = true
+directory = "/home/utlight/Pictures/Screenshots"
+
+[shell.launcher]
+categories = false
+layout = "simple"
+
+[shell.panel]
+clipboard_placement = "attached"
+launcher_placement = "attached"
+open_near_click_clipboard = true
+open_near_click_control_center = true
+open_near_click_session = true
+
+[[shell.session.actions]]
+action = "lock"
+
+[[shell.session.actions]]
+action = "logout"
+
+[[shell.session.actions]]
+action = "reboot"
+
+[[shell.session.actions]]
+action = "shutdown"
+variant = "destructive"
+
+#NOTE:----------------------------------------------------MISC---------------------------------------------------------
+
+[location]
+auto_locate = true
+
+[bluetooth]
+connection_notifications = true
+
+[keybinds]
+up = ["up", "ctrl+p"]
+down = ["down", "ctrl+n"]
+validate = ["Return", "KP_Enter", "space", "Ctrl+y"]
