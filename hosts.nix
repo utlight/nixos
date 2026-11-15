@@ -11,6 +11,7 @@
         ./system/hardware-configuration.nix
         inputs.grub2-themes.nixosModules.default
         inputs.home-manager.nixosModules.home-manager
+        {nixpkgs.overlays = [inputs.deepseek-harness.overlays.default];}
         {
           home-manager = {
             useGlobalPkgs = true;

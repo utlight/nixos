@@ -3,7 +3,13 @@ return {
   event = "VeryLazy",
   config = function()
     require("lualine").setup({
-      options = { globalstatus = true },
+      options = {
+        globalstatus = true,
+        disabled_filetypes = {
+          statusline = { "AgenticChat", "AgenticInput", "AgenticCode", "AgenticFiles", "AgenticDiagnostics" },
+          winbar = { "AgenticChat", "AgenticInput", "AgenticCode", "AgenticFiles", "AgenticDiagnostics" },
+        },
+      },
       extensions = { "neo-tree", "quickfix" },
       sections = {
         lualine_a = {

@@ -65,6 +65,7 @@ return {
         git_status = {
           symbols = {
             added = "",
+            deleted = "",
           },
         },
       },

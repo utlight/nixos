@@ -1,0 +1,38 @@
+--- a/cordis.patch.yml
++++ b/cordis.patch.yml
+@@ -117,8 +117,6 @@
+ - id: tool-subagent-fork
+   disabled: true
+ 
+-- id: tool-subagent-list-agents
+-  disabled: true
+ 
+ - id: tool-todo
+   disabled: true
+@@ -368,8 +366,6 @@
+             config:
+               - id: tool-subagent-control
+                 name: '@deepseek-ai/dsh-tool-subagent-control'
+-              - id: tool-subagent-list-agents
+-                name: '@deepseek-ai/dsh-tool-subagent-control/list-agents'
+               - id: tool-subagent
+                 name: '@deepseek-ai/dsh-tool-subagent'
+                 config:
+@@ -513,8 +509,6 @@
+             config:
+               - id: tool-subagent-control
+                 name: '@deepseek-ai/dsh-tool-subagent-control'
+-              - id: tool-subagent-list-agents
+-                name: '@deepseek-ai/dsh-tool-subagent-control/list-agents'
+               - id: tool-subagent
+                 name: '@deepseek-ai/dsh-tool-subagent'
+                 config:
+@@ -724,8 +718,6 @@
+             config:
+               - id: tool-subagent-control
+                 name: '@deepseek-ai/dsh-tool-subagent-control'
+-              - id: tool-subagent-list-agents
+-                name: '@deepseek-ai/dsh-tool-subagent-control/list-agents'
+               - id: tool-subagent
+                 name: '@deepseek-ai/dsh-tool-subagent'
+                 config:

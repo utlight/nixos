@@ -90,7 +90,7 @@ return {
       },
     })
 
-    vim.keymap.set("n", "<leader>gg", "<cmd>DiffviewToggle<cr>", { desc = "[Git] Diff" })
+    vim.keymap.set("n", "<leader>gd", "<cmd>DiffviewToggle<cr>", { desc = "[Git] Diff" })
     vim.keymap.set("n", "<leader>gf", "<cmd>DiffviewFileHistory %<cr>", { desc = "[Git] [F]ile History" })
 
     vim.opt.fillchars:append({ diff = "╱" })

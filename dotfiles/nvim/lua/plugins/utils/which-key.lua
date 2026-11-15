@@ -10,6 +10,7 @@ return {
       { "gr", group = "Lsp Actions", mode = { "n" } },
       { "<leader>g", group = "[G]it", mode = { "n", "v" } },
       { "<leader>h", group = "[H]arpoon", mode = { "n" } },
+      { "<leader>a", group = "[A]gentic", mode = { "n" } },
     },
   },
 }
