@@ -5,7 +5,7 @@
       enableZshIntegration = true;
       settings = {
         font-family = "JetBrainsMono Nerd Font Mono";
-        font-size = 13;
+        font-size = 12;
         theme = "noctalia";
         background-opacity = 0.9;
         confirm-close-surface = false;
