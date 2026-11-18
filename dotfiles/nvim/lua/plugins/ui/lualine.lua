@@ -2,12 +2,20 @@ return {
   "nvim-lualine/lualine.nvim",
   event = "VeryLazy",
   config = function()
+    local function not_agentic_window() return not vim.bo.filetype:match("^Agentic") end
+
     require("lualine").setup({
       options = {
         globalstatus = true,
         disabled_filetypes = {
-          statusline = { "AgenticChat", "AgenticInput", "AgenticCode", "AgenticFiles", "AgenticDiagnostics" },
-          winbar = { "AgenticChat", "AgenticInput", "AgenticCode", "AgenticFiles", "AgenticDiagnostics" },
+          winbar = {
+            "AgenticChat",
+            "AgenticInput",
+            "AgenticCode",
+            "AgenticFiles",
+            "AgenticDiagnostics",
+            "AgenticTodos",
+          },
         },
       },
       extensions = { "neo-tree", "quickfix" },
@@ -18,8 +26,13 @@ return {
         },
         lualine_b = {
           { "filetype", colored = true, icon_only = true, icon = { align = "left" } },
-          { "filename", symbols = { modified = " ", readonly = " " }, separator = { right = "" } },
-          { "", draw_empty = true, separator = { left = "", right = "" } },
+          {
+            "filename",
+            symbols = { modified = " ", readonly = " " },
+            separator = { right = "" },
+            cond = not_agentic_window,
+          },
+          { "", draw_empty = true, separator = { left = "", right = "" }, cond = not_agentic_window },
         },
         lualine_c = {
           {
@@ -28,6 +41,7 @@ return {
             diff_color = { added = "DiffAdd", modified = "DiffChange", removed = "DiffDelete" },
             symbols = { added = "+", modified = "~", removed = "-" },
             separator = { right = "" },
+            cond = not_agentic_window,
           },
         },
         lualine_x = {

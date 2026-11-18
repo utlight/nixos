@@ -7,7 +7,7 @@
         font-family = "JetBrainsMono Nerd Font Mono";
         font-size = 12;
         theme = "noctalia";
-        background-opacity = 0.9;
+        # background-opacity = 0.9;
         confirm-close-surface = false;
       };
     };

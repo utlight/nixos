@@ -1,23 +1,21 @@
 return {
   "carlos-algms/agentic.nvim",
-  -- dependencies = {
-  --   {
-  --     "MeanderingProgrammer/render-markdown.nvim",
-  --     dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
-  --     opts = { file_types = { "markdown", "md", "AgenticChat" } },
-  --   },
-  -- },
   init = function() require("config.dsh_sessions").setup() end,
   config = function()
     local agentic = require("agentic")
+
+    local dsh_sessions = require("config.dsh_sessions")
+    dsh_sessions.install_session_patch()
 
     agentic.setup({
       provider = "deepseek-acp",
       acp_providers = {
         ["deepseek-acp"] = {
           name = "DeepSeek ACP",
-          command = "/etc/profiles/per-user/utlight/bin/dsh",
-          args = { "--profile", "nix-acp" },
+          command = "dsh",
+          args = { "--profile", "nix-acp-enhanced" },
+          default_thought_level = "high",
+          default_mode = "workspace-write",
           env = {
             DSH_ACP_STREAM_DELTAS = "false",
           },
@@ -53,18 +51,55 @@ return {
 
             local thought_level = session_state:get_thought_level_name()
             if thought_level then header = header .. " | Thought Effort: " .. thought_level end
-
-            local used = session_state:get_context_used()
-            local size = session_state:get_context_size()
-            if used and size then header = header .. " | " .. used .. "/" .. size end
           end
           return header
         end,
-        input = function(parts) return parts.title end,
+        input = function(parts, session_state)
+          local pieces = { parts.title }
+          local summary = session_state and dsh_sessions.summary(session_state) or { severity = 0 }
+          local severity = summary.severity or 0
+
+          if session_state then
+            local used = "Used: --"
+            if summary.percent ~= nil then used = string.format("Used: %d%%", summary.percent) end
+
+            local tokens = "Σ --"
+            if summary.total_in and summary.total_out then
+              tokens = string.format(
+                "Σ %s/%s",
+                dsh_sessions.format_token_count(summary.total_in),
+                dsh_sessions.format_token_count(summary.total_out)
+              )
+            end
+
+            local hit = "Hit: --"
+            if summary.hit_percent ~= nil then hit = string.format("Hit: %.1f%%", summary.hit_percent) end
+
+            pieces[#pieces + 1] = used
+            pieces[#pieces + 1] = tokens
+            pieces[#pieces + 1] = hit
+          end
+
+          local text = table.concat(pieces, " | "):gsub("%%", "%%%%")
+
+          if severity >= 2 then
+            return "%#DiagnosticError#" .. text .. "%#Normal#"
+          elseif severity == 1 then
+            return "%#DiagnosticWarn#" .. text .. "%#Normal#"
+          end
+          return text
+        end,
       },
     })
 
     vim.keymap.set("n", "<leader>as", require("config.dsh_sessions").picker, { desc = "DSH sessions" })
+    vim.keymap.set("n", "<leader>ad", agentic.add_current_line_diagnostics, { desc = "Add diagnostics" })
+    vim.keymap.set(
+      { "n", "v" },
+      "<leader>af",
+      agentic.add_selection_or_file_to_context,
+      { desc = "Add file/selection" }
+    )
     vim.keymap.set(
       "n",
       "<leader>an",

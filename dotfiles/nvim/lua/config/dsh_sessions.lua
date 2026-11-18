@@ -14,6 +14,12 @@
 ---
 --- The picker opens in normal mode; press `i` to type in the prompt.
 ---
+--- Rows carry the context-window percentage of the last usage sample and the
+--- token usage summed from committed assistant messages, as
+--- `Used: 4% | Σ 2.2M/57.2K | Hit: 12%`. All three come from the stored log,
+--- so they survive a restart; the header gets the same values live from
+--- `usage_update._meta`, seeded from this log when a session is restored.
+---
 --- The picker defaults to sessions whose recorded cwd matches Neovim's cwd;
 --- `a` shows sessions from every workspace.
 ---
@@ -24,13 +30,13 @@
 --- zstd frames (or plain JSONL); the event is appended under the same `flock`
 --- lease DSH writers use, so a live host can never race the write.
 ---
---- Destroy closes a session open in this Neovim, releases its write lease, and
+--- Destroy closes a session open in this Neovim instance, releases its write lease, and
 --- removes its widget while keeping the stored artifact. Delete destroys any
 --- session open here first, then removes the artifact and its stale
 --- list-projection cache row. Sessions owned by another live DSH host (another
 --- nvim, or the Web host) are refused.
 ---
---- A session open in this Neovim can be renamed by closing it, writing the
+--- A session opened in this Neovim instance can be renamed by closing it, writing the
 --- title, and restoring it, but only after explicit confirmation.
 
 local M = {}
@@ -44,6 +50,8 @@ local MAX_TITLE_BYTES = 80
 local TITLE_PREFIX = '{"type":"session/title"'
 local TURN_PREFIX = '{"type":"turn/start"'
 local USER_PREFIX = '{"type":"user/message"'
+local MESSAGE_PREFIX = '{"type":"assistant/message"'
+local CONTEXT_PREFIX = '{"type":"request/context"'
 
 local APPEND_SCRIPT = [[
 size=$(wc -c < "$1")
@@ -54,6 +62,176 @@ sync "$1" || exit 5
 ]]
 
 local function notify(message, level) vim.notify("dsh sessions: " .. message, level or LEVELS.INFO) end
+
+--- Compact token count: 27649 -> "27.6K".
+function M.format_token_count(n)
+  if n >= 1000000 then return string.format("%.1fM", n / 1000000) end
+  if n >= 1000 then return string.format("%.1fK", n / 1000) end
+  return tostring(n)
+end
+
+--- Render one picker row's `Used: … | Σ … | Hit: …` cell. The header has its
+--- own formatting against `summary`; this one is only for the picker, whose
+--- rows share field widths so the columns line up.
+--- @param percent number|nil
+--- @param inout string|nil
+--- @param hit number|nil
+--- @param widths table|nil
+--- @return string
+local function format_stats(percent, inout, hit, widths)
+  widths = widths or {}
+
+  local percent_width = widths.percent or (percent ~= nil and percent >= 100 and 3 or 2)
+  local used_width = percent_width + 1
+  local used
+  if percent ~= nil then
+    used = string.format("%" .. percent_width .. "d%%", percent)
+  else
+    used = string.format("%" .. used_width .. "s", "--")
+  end
+
+  local inout_width = math.max(2, widths.inout or (inout ~= nil and #inout or 2))
+  local tokens = string.format("%" .. inout_width .. "s", inout or "--")
+
+  local hit_width = widths.hit or 6
+  local hit_text
+  if hit ~= nil then
+    hit_text = string.format("%5.1f%%", hit)
+  else
+    hit_text = string.format("%" .. hit_width .. "s", "--")
+  end
+
+  return string.format("Used: %s | Σ %s | Hit: %s", used, tokens, hit_text)
+end
+
+--- Header-facing view of one live session's usage.
+---
+--- `SessionState` only knows the latest `usage_update`; the running totals and
+--- the warning thresholds live here so the picker and the header agree.
+--- @param state agentic.acp.SessionState|nil
+--- @return table
+function M.summary(state)
+  if state == nil then return { severity = 0 } end
+
+  local used = state:get_context_used_raw()
+  local size = state:get_context_size_raw()
+  local meta = state.get_meta and state:get_meta() or nil
+  local hit = meta and meta.cacheHitRate
+  local total_in = state.get_total_input and state:get_total_input() or nil
+  local total_out = state.get_total_output and state:get_total_output() or nil
+
+  local percent
+  local severity = 0
+  if used and size and size > 0 then
+    percent = math.floor((used / size) * 100 + 0.5)
+    if percent >= 80 then
+      severity = 2
+    elseif percent >= 70 then
+      severity = 1
+    end
+  end
+
+  if hit ~= nil then
+    if hit < 70 then
+      severity = 2
+    elseif hit < 90 and severity < 1 then
+      severity = 1
+    end
+  end
+
+  return {
+    used = used,
+    size = size,
+    percent = percent,
+    hit_percent = hit,
+    total_in = total_in,
+    total_out = total_out,
+    severity = severity,
+  }
+end
+
+--- Extend agentic.nvim's SessionState with the per-sample usage totals that
+--- `usage_update._meta` carries, and teach SessionManager to seed a restored
+--- session from its stored log. Idempotent: `setup` runs during plugin `init`
+--- (where agentic may not be on the runtimepath yet) and agentic's `config`
+--- calls it again once the plugin is loaded.
+function M.install_session_patch()
+  local ok, SessionState = pcall(require, "agentic.acp.session_state")
+  if ok and type(SessionState) == "table" and not SessionState._dsh_patched then
+    SessionState._dsh_patched = true
+
+    local store_usage = SessionState.set_usage
+
+    function SessionState:set_usage(update)
+      store_usage(self, update)
+
+      local meta = update._meta
+      if not meta then return end
+
+      self._meta = meta
+
+      -- `_meta` is one provider usage sample (per model step), not a running
+      -- total. Sum the samples, but only once each: turn/end re-emits the last
+      -- sample with `turnMs`, and a step can report usage on both its stream
+      -- chunk and its committed message.
+      local input = meta.contextTokens
+      if input == nil then
+        input = (meta.inputTokens or 0) + (meta.cacheReadTokens or 0) + (meta.cacheWriteTokens or 0)
+      end
+      -- `reasoningTokens` is a subset of `outputTokens`, not an extra bucket.
+      local output = meta.outputTokens or 0
+      local key = table.concat({
+        tostring(meta.turn),
+        tostring(meta.step),
+        tostring(input),
+        tostring(output),
+        tostring(meta.cacheReadTokens),
+        tostring(meta.cacheWriteTokens),
+      }, ":")
+
+      if self._usage_key == key then return end
+      self._usage_key = key
+      self._total_input = (self._total_input or 0) + input
+      self._total_output = (self._total_output or 0) + output
+    end
+
+    function SessionState:get_meta() return self._meta end
+
+    function SessionState:get_total_input() return self._total_input end
+
+    function SessionState:get_total_output() return self._total_output end
+
+    local clear_usage = SessionState.clear
+
+    function SessionState:clear()
+      clear_usage(self)
+      self._meta = nil
+      self._usage_key = nil
+      self._total_input = nil
+      self._total_output = nil
+    end
+  end
+
+  -- ACP history replay deliberately omits usage, so a restored session's live
+  -- state starts empty. Seed it when `session/load` completes, before the first
+  -- new usage sample can land.
+  local manager_ok, SessionManager = pcall(require, "agentic.session_manager")
+  if manager_ok and type(SessionManager) == "table" and not SessionManager._dsh_usage_patched then
+    local complete_start = SessionManager.complete_start
+    if type(complete_start) == "function" then
+      SessionManager._dsh_usage_patched = true
+
+      function SessionManager:complete_start(spec, result, err, callback)
+        complete_start(self, spec, result, err, callback)
+        if spec ~= nil and spec.kind == "load" and err == nil and result ~= nil then
+          if M.seed_session(self.session_state, result.session_id) and self.widget ~= nil then
+            if type(self.widget.schedule_header_refresh) == "function" then self.widget:schedule_header_refresh() end
+          end
+        end
+      end
+    end
+  end
+end
 
 local function dsh_home()
   local configured = vim.env.DSH_HOME
@@ -183,11 +361,39 @@ local function prompt_text(event)
   return text
 end
 
+--- Parse the flat `data.usage` object out of one stored assistant message.
+---
+--- Decoding the whole line would drag its stream-chunk array through the JSON
+--- parser, so pull the small object out with a balanced-brace match instead.
+--- @return number|nil prompt_tokens, number|nil output_tokens
+local function message_usage(line)
+  -- `data.usage` precedes the stream array; stopping there keeps a stream
+  -- usage chunk from standing in for a missing committed-message sample.
+  local head = line:match('^(.-"stream":)') or line
+  local blob = head:match('"usage":(%b{})')
+  if blob == nil then return nil, nil end
+
+  local function field(name)
+    local value = blob:match('"' .. name .. '":(%d+)')
+    return value ~= nil and tonumber(value) or 0
+  end
+
+  local input = field("inputTokens")
+  local cache_read = field("cacheReadTokens")
+  local cache_write = field("cacheWriteTokens")
+  local prompt = input + cache_read + cache_write
+  local output = field("outputTokens")
+  local hit = prompt > 0 and math.floor((cache_read / prompt) * 10000 + 0.5) / 100 or 0
+
+  return prompt, output, hit
+end
+
 --- One streaming decompression pass over a log.
 ---
 --- Returns the header, whether a turn ever started, the first eligible user
---- message, the last stored title, the last physical line, and whether the
---- reader finished cleanly. Listing tolerates a torn tail; rename refuses it.
+--- message, the last stored title, the last physical line, the token usage
+--- summed from committed assistant messages, and whether the reader finished
+--- cleanly. Listing tolerates a torn tail; rename refuses it.
 --- @return table
 local function inspect_log(log)
   local state = {
@@ -197,6 +403,10 @@ local function inspect_log(log)
     prompt = nil,
     title = nil,
     last_line = nil,
+    usage = { input = 0, output = 0, steps = 0 },
+    context_tokens = nil,
+    context_window = nil,
+    cache_hit_rate = nil,
   }
 
   local pending = ""
@@ -226,6 +436,21 @@ local function inspect_log(log)
       if decoded and type(event) == "table" and type(event.data) == "table" then
         local title = event.data.title
         if type(title) == "string" and title ~= "" then state.title = title end
+      end
+    elseif starts_with(line, MESSAGE_PREFIX) then
+      local prompt, output, hit = message_usage(line)
+      if prompt ~= nil then
+        state.usage.input = state.usage.input + prompt
+        state.usage.output = state.usage.output + output
+        state.usage.steps = state.usage.steps + 1
+        state.context_tokens = prompt
+        state.cache_hit_rate = hit
+      end
+    elseif starts_with(line, CONTEXT_PREFIX) then
+      local decoded, event = pcall(vim.json.decode, line)
+      if decoded and type(event) == "table" and type(event.data) == "table" then
+        local window = event.data.contextWindow
+        if type(window) == "number" and window > 0 then state.context_window = window end
       end
     end
   end
@@ -420,6 +645,24 @@ local function update_cached_title(item, title, seq)
   return true, nil
 end
 
+--- Directory of one stored session, whichever workspace owns it.
+--- @param id string
+--- @return string|nil
+local function session_dir(id)
+  local root = sessions_root()
+  local ok, iterator = pcall(vim.fs.dir, root)
+  if not ok then return nil end
+
+  for cwd_dir, kind in iterator do
+    if kind == "directory" then
+      local dir = vim.fs.joinpath(root, cwd_dir, id)
+      if uv.fs_stat(dir) ~= nil then return dir end
+    end
+  end
+
+  return nil
+end
+
 --- Every stored session, newest first.
 --- @return table[]
 function M.list()
@@ -456,6 +699,10 @@ function M.list()
                 lock = lock_state(dir),
                 title = snapshot.title or cached_title(id),
                 summary = used and snapshot.prompt or nil,
+                usage = snapshot.usage,
+                context_tokens = snapshot.context_tokens,
+                context_window = snapshot.context_window,
+                cache_hit_rate = snapshot.cache_hit_rate,
                 version = primary.version,
               }
             end
@@ -470,9 +717,57 @@ function M.list()
   for _, item in ipairs(items) do
     item.age_label = describe_age(item.age)
     item.label = item.title or item.summary or "Untitled"
+    if item.context_tokens and item.context_window and item.context_window > 0 then
+      item.context_percent = math.floor((item.context_tokens / item.context_window) * 100 + 0.5)
+    end
   end
 
   return items
+end
+
+--- Usage totals for one stored session, read from its current log artifact.
+--- @param id string
+--- @return table|nil
+function M.usage_for(id)
+  local dir = session_dir(id)
+  if dir == nil then return nil end
+
+  local artifacts = session_artifacts(dir)
+  if #artifacts == 0 then return nil end
+
+  local snapshot = inspect_log(artifacts[1].path)
+  if not snapshot.ok or snapshot.usage.steps == 0 then return nil end
+
+  return {
+    input = snapshot.usage.input,
+    output = snapshot.usage.output,
+    steps = snapshot.usage.steps,
+    context_tokens = snapshot.context_tokens,
+    context_window = snapshot.context_window,
+    cache_hit_rate = snapshot.cache_hit_rate,
+  }
+end
+
+--- Seed a restored SessionState from its stored log. Runs once, before the
+--- first live sample; a session with no stored usage is left untouched.
+--- @param state agentic.acp.SessionState|nil
+--- @param id string|nil
+--- @return boolean seeded
+function M.seed_session(state, id)
+  if state == nil or id == nil then return false end
+  if state.get_total_input and state:get_total_input() ~= nil then return false end
+
+  local usage = M.usage_for(id)
+  if usage == nil then return false end
+
+  state._total_input = usage.input
+  state._total_output = usage.output
+  if state._usage == nil and usage.context_tokens and usage.context_window then
+    state._usage = { used = usage.context_tokens, size = usage.context_window }
+  end
+  if state._meta == nil and usage.cache_hit_rate ~= nil then state._meta = { cacheHitRate = usage.cache_hit_rate } end
+
+  return true
 end
 
 --- Remove one stored session artifact plus its projection-cache row.
@@ -829,11 +1124,18 @@ local function entries(show_all)
         workspace = "@" .. vim.fs.basename(item.cwd)
       end
 
+      local inout = nil
+      if item.usage ~= nil and item.usage.steps > 0 then
+        inout = string.format("%s/%s", M.format_token_count(item.usage.input), M.format_token_count(item.usage.output))
+      end
+
       records[#records + 1] = {
         id = item.id,
         item = item,
         age = item.age_label,
-        state = item.has_turn and "used" or "blank",
+        inout = inout,
+        percent = item.context_percent,
+        hit = item.cache_hit_rate,
         lock = item.lock == "locked" and "LIVE" or (item.lock == "unknown" and "LOCK?" or ""),
         session_id = item.id:sub(1, 8),
         workspace = workspace,
@@ -845,12 +1147,23 @@ local function entries(show_all)
     end
   end
 
-  local title_cap = math.max(20, math.min(60, vim.o.columns - 50))
-  local widths = { age = 0, state = 0, title = 0, lock = 0, id = 0 }
+  -- Pin all three fields so the `| Σ` and `| Hit:` seams stay put, and a
+  -- missing value's `--` sits at the right edge of its field.
+  local percent_width = 2
+  local inout_width = 2
   for _, row in ipairs(records) do
+    if row.percent ~= nil and row.percent >= 100 then percent_width = 3 end
+    if row.inout ~= nil then inout_width = math.max(inout_width, display_width(row.inout)) end
+  end
+  local stats_widths = { percent = percent_width, inout = inout_width, hit = 6 }
+
+  local title_cap = math.max(20, math.min(60, vim.o.columns - 75))
+  local widths = { age = 0, title = 0, stats = 0, lock = 0, id = 0 }
+  for _, row in ipairs(records) do
+    row.stats = format_stats(row.percent, row.inout, row.hit, stats_widths)
     widths.age = math.max(widths.age, display_width(row.age))
-    widths.state = math.max(widths.state, display_width(row.state))
     widths.title = math.max(widths.title, display_width(row.title))
+    widths.stats = math.max(widths.stats, display_width(row.stats))
     widths.lock = math.max(widths.lock, display_width(row.lock))
     widths.id = math.max(widths.id, display_width(row.session_id))
   end
@@ -859,8 +1172,8 @@ local function entries(show_all)
   for _, row in ipairs(records) do
     local parts = {}
     if widths.age > 0 then parts[#parts + 1] = pad_left(row.age, widths.age) end
-    if widths.state > 0 then parts[#parts + 1] = pad_right(row.state, widths.state) end
     parts[#parts + 1] = pad_right(truncate_display(row.title, widths.title), widths.title)
+    if widths.stats > 0 then parts[#parts + 1] = pad_right(row.stats, widths.stats) end
     if widths.lock > 0 then parts[#parts + 1] = pad_right(row.lock, widths.lock) end
     if widths.id > 0 then parts[#parts + 1] = pad_right(row.session_id, widths.id) end
     if row.workspace ~= "" then parts[#parts + 1] = row.workspace end
@@ -1132,8 +1445,9 @@ function M.picker(opts)
     :find()
 end
 
---- Register the user command.
+--- Register the user command and, when agentic is already loaded, the patch.
 function M.setup()
+  M.install_session_patch()
   vim.api.nvim_create_user_command("DshSessions", M.picker, {
     desc = "DSH sessions: restore, rename, destroy, delete, or start a new one",
   })

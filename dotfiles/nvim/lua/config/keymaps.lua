@@ -8,9 +8,9 @@ vim.keymap.set("n", "<C-d>", "<C-d>zz")
 
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<cr>")
 
-vim.keymap.set("n", "<leader>zz", "<cmd>qa<cr>", { desc = "Quit" })
-vim.keymap.set("n", "<leader>zw", "<cmd>wqa<cr>", { desc = "Write and Quit" })
-vim.keymap.set("n", "<leader>zr", "<cmd>restart<cr>", { desc = "Restart" })
+vim.keymap.set("n", "<leader>qq", "<cmd>qa<cr>", { desc = "Quit" })
+vim.keymap.set("n", "<leader>qw", "<cmd>wqa<cr>", { desc = "Write and Quit" })
+vim.keymap.set("n", "<leader>qr", "<cmd>restart<cr>", { desc = "Restart" })
 
 vim.keymap.set({ "n", "o" }, "U", function()
   vim.fn.setreg("/", [[\%.l\u]])

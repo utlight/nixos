@@ -33,27 +33,12 @@ return {
   },
   lazy = false,
   config = function()
-    local dotnet_tree_commands = require("dotnet-tree.commands")
-    local neo_tree_commands = require("neo-tree.sources.common.commands")
-
     require("neo-tree").setup({
       close_if_last_window = true,
       use_popups_for_input = false,
       sources = { "filesystem", "dotnet-tree" },
       ["dotnet-tree"] = {
         follow_current_file = { enabled = true },
-        window = {
-          mappings = {
-            ["a"] = neo_tree_commands.add,
-            ["A"] = dotnet_tree_commands.add,
-            ["d"] = neo_tree_commands.delete,
-            ["D"] = dotnet_tree_commands.debug,
-            ["r"] = neo_tree_commands.rename,
-            ["b"] = "noop",
-            ["B"] = "noop",
-            ["t"] = "noop",
-          },
-        },
       },
       filesystem = {
         bind_to_cwd = true,

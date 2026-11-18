@@ -2,33 +2,32 @@
   flake.modules.homeManager.base = {pkgs, ...}: {
     imports = [inputs.deepseek-harness.homeModules.default];
 
-    services.dsh.profiles.web.bundles = [pkgs.dsh.bundles.web-app];
-    services.dsh.enable = true;
-    services.dsh.port = 3080;
+    home.packages = with pkgs; [mcp-nixos];
 
     programs.dsh = {
       enable = true;
-      profiles.acp = {
-        bundles = [(pkgs.callPackage ../../pkgs/_dsh-acp-enhanced.nix {})];
+      profiles.acp-enhanced = {
+        bundles = [pkgs.dsh.bundles.acp-enhanced];
         patch = [
-          # Do not add an `acp-enhanced` config row here: a profile patch
-          # replaces the row's whole config, which would drop the bridge's
-          # provider/model route. Use DSH_ACP_* environment variables instead.
           {
-            id = "headless-runner";
-            disabled = true;
+            id = "mcp-nixos";
+            name = "@deepseek-ai/dsh-mcp-client";
+            config = {
+              serverName = "nixos";
+              transport = "stdio";
+              command = "nix";
+              args = ["run" "github:utensils/mcp-nixos" "--"];
+            };
           }
           {
-            id = "credentials";
-            disabled = false;
-          }
-          {
-            id = "authorization";
-            disabled = false;
-          }
-          {
-            id = "deepseek-account";
-            disabled = false;
+            id = "roseline-mcp";
+            name = "@deepseek-ai/dsh-mcp-client";
+            config = {
+              serverName = "roseline";
+              transport = "stdio";
+              command = "dotnet";
+              args = ["dnx" "RoselineMCP@3.2.1" "--yes"];
+            };
           }
         ];
       };
